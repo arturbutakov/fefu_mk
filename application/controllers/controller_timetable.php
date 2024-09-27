@@ -23,6 +23,16 @@ class Controller_Timetable extends Controller
     }
 	function action_showTimetable()
     {	
+        $message = $this->action_checkUser();
+        // if ($message) {
+        //     $root = $this->checkRoot();
+        //     $event = $this->model->getEvent();
+        //     $event['root'] = $root;
+        //     $this->view->generate('timetable_view.php', 'template_view.php', $event);
+        // } else {
+        //     $message = "Авторизуйтесь пожалуйста.";
+        //     $this->view->generate('login_view.php', 'template_view.php', $message);
+        // }
         $root = $this->checkRoot();
         $event = $this->model->getEvent();
         $event['root'] = $root;
@@ -32,6 +42,13 @@ class Controller_Timetable extends Controller
     {   
         if (isset($_POST['submit'])) {
             $this->model->addEvent($_POST['nameFF'],$_POST['dateFF'],$_POST['descriptionFF'],$_POST['taskFF'], $_POST['groupFF'], $_COOKIE['id']);
+            header('Location:/shop/timetable/showTimetable');
+        }
+    }
+    function action_deleteEvent()
+    {   
+        if (isset($_POST['submit'])) {
+            $this->model->deleteEvent($_GET['id']);
             header('Location:/shop/timetable/showTimetable');
         }
     }

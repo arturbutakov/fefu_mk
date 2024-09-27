@@ -1,3 +1,6 @@
+<link href="../css/timetable_style.css" rel="stylesheet"> 
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+<link href="../css/responsive-calendar.css" rel="stylesheet">
 <?php global $HTTP_POST_VARS; ?>
   <h2>Расписание</h2><br>
 <div class="form_container">
@@ -36,42 +39,32 @@
 
         </form>
     </div>
-<?php if ($data['root'] == 1) {
+    <?php if ($data['root'] == 1) {
    echo '<span class="create_event_show btn btn-default">Добавить событие</span>';
 }?>
-<br/><br/>
+<br/>
 <div class="container">
-    <div class="row calendar_week">
-        
-        <?php
-        $d = 1;
-        $i = 1;
-        $currentdate = date('Y-m-d');
-        $date = date('jS MS');
-        while ($i<19)
-        { 
-           echo ' 
-           <div class="col-md-2 calendar_day">
-               <div class="date">
-                   <p class="lead">'.$date.'</p>
-               </div>
-               <div class="scroll_image"></div>
-               <div class="list_events">
-                   <span>';
-                   foreach ($data as $key) {
-                    if ($key['date'] == $currentdate) {
-                    echo '<a class="btn" href="/shop/user/showevent?id='.$key['id'].'">'.$key['name']."</a><br />";
-                    }
-                   }
-                 echo "  
-                   </span>
-               </div>
-           </div>";
-           $currentdate = date ('Y-m-d', strtotime ('+'.$i.' days'));
-           $date = date('jS MS', strtotime ('+'.$i.' days'));
-           $d++;
-           $i++;
-        }
-        ?>
-  </div>      
-  </div>      
+      <!-- Responsive calendar - START -->
+      <div class="responsive-calendar">
+        <div class="controls">
+            <a class="pull-left" data-go="prev"><div class="btn btn-primary">Назад</div></a>
+            <h4><span data-head-year></span> <span data-head-month></span></h4>
+            <a class="pull-right" data-go="next"><div class="btn btn-primary">Вперед</div></a>
+        </div><hr/>
+        <div class="day-headers">
+          <div class="day header">Пн</div>
+          <div class="day header">Вт</div>
+          <div class="day header">Ср</div>
+          <div class="day header">Чт</div>
+          <div class="day header">Пт</div>
+          <div class="day header">Сб</div>
+          <div class="day header">Вс</div>
+        </div>
+        <div class="days" data-group="days">
+          
+        </div>
+      </div>
+      <!-- Responsive calendar - END -->
+    </div>
+
+    

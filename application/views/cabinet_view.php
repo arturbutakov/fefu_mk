@@ -16,7 +16,7 @@
     				}
     				
     			}
-		 	}
+		 	  }
     		?>
     	</td>
     	<td>
@@ -27,9 +27,27 @@
     				}
     				
     			}
-		 	}
+		 	  }
     		?>
     	</td>
+      <!-- <td> //выбор группы или админ аккаунта
+        <?php 
+          foreach ($data['unconfirmedUsers'] as $row) { ?>
+            <div class="btn-group">
+            <p><select size="1" name="group" class="btnn  dropdown-toggle">
+                <?php global $HTTP_POST_VARS;
+                  for ($i=1; $i <= count($HTTP_POST_VARS); $i++) { 
+                    if (isset($HTTP_POST_VARS[$i]['name']))  {
+                ?>
+                <option value="<?php echo $HTTP_POST_VARS[$i]['id'];?>"><?php echo $HTTP_POST_VARS[$i]['name'];?></option>
+                <?php 
+                  } } unset($HTTP_POST_VARS); 
+                ?>
+                <option value="0" selected>Администратор</option>
+            </select></p>
+            </div><br/>
+        <?php } ?>
+      </td> -->
     	<td>
     		<?php 
     		foreach ($data['unconfirmedUsers'] as $row) { ?>
@@ -48,6 +66,21 @@
 </form>
 </div> <!-- форма подтверждения новых пользователей -->
 
+<div class="form_container2">
+<form id="event_form2" role="form" method="POST" action="/shop/user/updateinfo">
+    <h3>Изменение информации</h3>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" class="form-control" name="email" placeholder="Email">
+    </div>
+    <div class="form-group">
+      <label>Номер телефона</label>
+      <input type="number" class="form-control" name="phone_number" placeholder="Phone number">
+    </div>
+    <input name="submit" type="submit" class="btn btn-default" value="Сохранить">
+</form>
+</div> <!-- форма редактирования инфо -->
+
 <?php if (count($data) != 0) { ?> <!-- проверяем на наличие элементов -->
 	<div class="container">	
 		<h2>Личный кабинет</h2><br>
@@ -62,8 +95,8 @@
 		  	<br/>
 		  	<?php if ($data['roots']=='1') { ?> <!-- только для админов -->
 		 		<span class="create_event_show btn btn-default">Показать список новых участников</span><br/><hr/>
-		 		<span class="create_event_show btn btn-default">Создать группу</span>
-		 		<span class="create_event_show btn btn-default">Удалить группу</span><hr/>
+		 		<!-- <span class="create_event_show btn btn-default">Создать группу</span>
+		 		<span class="create_event_show btn btn-default">Удалить группу</span><hr/> -->
 
 		 	<?php }
 		 	if ($data['roots']=='0') { ?> <!-- только для учеников -->
@@ -78,9 +111,9 @@
 			  	</div>
 		  	<?php } 
 		  if ($data['roots']=='0') { ?>
-		  	<a class="btn btn-default" href="/shop/user/edituser">Изменить информацию</a>
+            <span class="create_event_show2 btn btn-default">Изменить информацию</span>
 		  <?php } ?>
-		  <a class="btn btn-default" href="/shop/user/logoutuser">Выход из профиля</a>
+		  <a class="btn btn-default" href="/shop/user/logoutUserHeader">Выход из профиля</a>
 		 </div>
 		 <div>
 		 <br/>

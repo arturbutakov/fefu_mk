@@ -80,7 +80,12 @@
 	    		<?php foreach ($data['users'] as $row) {
 	    			foreach ($data['marks'] as $ro) {
 	    				if ($ro['user_id'] == $row['user_id']) {
-	    					print '<input type="login" class="form-control" size="2" name="'.$ro['user_id'].'" placeholder="'.$ro['visited'].'">';
+	    					print '<input type="checkbox" class="form-controll" value="1" name="'.$ro['user_id'].'"';
+	    					if ($ro['visited'] == '1') {
+	    						print ' checked>';
+	    					} else {
+	    						print '>';
+	    					}
 	    				}
 	    				
 	    			}
@@ -161,6 +166,12 @@
 	</div>
 	</div>
 	<?php if ($data['roots']=='1') {
-		echo '<span class="create_event_show btn btn-default">Проставить оценки</span>';
+		echo '
+		<form method="POST" action="/shop/timetable/deleteevent?id='.$_GET['id'].'">
+		    <div class="form-group">
+		    	<span class="create_event_show btn btn-default">Проставить оценки</span>
+		        <input type="submit" name="submit" class="btn btn-default" value="Удалить событие">
+		    </div>
+		</form>';
 	}
 	} else echo '<h4 class="media-heading container text-center">Запрос не содержит элементов</h4>'?>

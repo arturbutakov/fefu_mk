@@ -67,7 +67,8 @@ class Model_User extends Model
             $query->bindParam(":email", $email);
             $query->bindParam(":phone_number", $phone_number);
             $query->bindParam(":middle_name", $middle_name);
-            $query->execute();   
+            $query->execute(); 
+            setcookie("login_temp", '', time() + 60 * 60 * 24 * 30, "/");  
         } 
         return null; 
     }
@@ -183,6 +184,22 @@ class Model_User extends Model
     {
         $query = $this->DBH->prepare("UPDATE users SET user_status='1' WHERE user_id=:user_id");
         $query->bindParam(':user_id', $user_id);
+        $query->execute();
+        return null; 
+    }
+    public function updateInfo($phone_number)
+    {
+        $query = $this->DBH->prepare("UPDATE info SET phone_number=:phone_number WHERE user_login=:user_login");
+        $query->bindParam(':user_login', $_COOKIE['username']);
+        $query->bindParam(':phone_number', $phone_number);
+        $query->execute();
+        return null; 
+    }
+    public function updateInfoEmail($email)
+    {
+        $query = $this->DBH->prepare("UPDATE info SET email=:email WHERE user_login=:user_login");
+        $query->bindParam(':user_login', $_COOKIE['username']);
+        $query->bindParam(':email', $email);
         $query->execute();
         return null; 
     }

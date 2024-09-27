@@ -9,27 +9,28 @@ class Controller_User extends Controller
         global $HTTP_POST_VARS;
         for ($i = 1; $i <= count($category); $i++) 
         {
-            $HTTP_POST_VARS[$i] = $category[$i - 1]['name'];
+            $HTTP_POST_VARS[$i] = $category[$i - 1];
         }
     }
     function action_showLogin()
     {
+        $message = $this->action_logoutUser();
         $this->view->generate('login_view.php', 'template_view.php');
     }
     function action_showMain()
     {
+        $message = $this->action_checkUser();
         $this->view->generate('main_view.php', 'template_view.php');
     }  
     function action_showRegister()
     {
+        $message = $this->action_logoutUser();
         $this->view->generate('register_view.php', 'template_view.php');
-    }
-    function action_showTimetable()
-    {
-        $this->view->generate('timetable_view.php', 'template_view.php');
     }
     function action_showEvent()
     {
+        $message = $this->action_checkUser();
+
         $roots = $this->model->checkRoots(); //проверяем права админа
         $event = $this->model->getEvent($_GET['id']); //берем данные из бд
         $users = $this->model->getUsers($event['0']['group_id']);
@@ -38,7 +39,7 @@ class Controller_User extends Controller
         $staff = $this->model->getHashAndIDStaff($event['0']['staff_id']);
         $group = $this->model->getTheCategory($event['0']['group_id']);
         if (isset($_GET['edit'])) { //если редактирование event
-            if (isset($_POST['submit'])) {
+            if (isset($_POST['submit'])) { //если нам что-то послали
                 foreach ($marks as $row) {
                     if ($_POST[$row['user_id']] !== '') { //редактирование посещения
                         $error = $this->model->updateVisited($row['user_id'], $_POST[$row['user_id']], $_GET['id']);    
@@ -62,7 +63,7 @@ class Controller_User extends Controller
                 'group' => $group));
         }
     }
-    function action_confirmation()
+    function action_confirmation() //подтверждение новых пользователей
     {
         $users = $this->model->getUnconfirmedUsers();
         foreach ($users as $row) {
@@ -74,6 +75,16 @@ class Controller_User extends Controller
                     $error = $this->model->deleteUsers($row['user_id']);    
                 }    
             }
+        }
+        header('Location:/shop/user/getCabinetAndShow?login='.$_COOKIE['username']);
+    }
+    function action_updateInfo()
+    {
+        if ($_POST['phone_number'] !== '') {
+        $error = $this->model->updateInfo($_POST['phone_number']);
+        }
+        if ($_POST['email'] !== '') {
+        $error = $this->model->updateInfoEmail($_POST['email']);
         }
         header('Location:/shop/user/getCabinetAndShow?login='.$_COOKIE['username']);
     }
@@ -113,7 +124,7 @@ class Controller_User extends Controller
             } else {
                 $error = $this->model->checkAndAuthUser($_POST['login'], $_POST['password']);
                 if (is_null($error)) {
-                    header('Location:/shop/user/checkUser');
+                    header('Location:/shop/user/checkUserr');
                 } else {
                     $this->view->generate('login_view.php', 'template_view.php', $error);
                 }
@@ -121,7 +132,7 @@ class Controller_User extends Controller
         }
     }
     
-    function action_checkUser()
+    function action_checkUserr()
     {
         $userdata = $this->model->getHashAndID(intval($_COOKIE['id']));
         if (isset($_COOKIE['id']) and isset($_COOKIE['hash'])) {
@@ -164,10 +175,16 @@ class Controller_User extends Controller
     function action_logoutUser()
     {
         $logout = $this->model->logOut();
-        header('Location: /shop/user/showMain');
-    } 
+        
+    }
+    function action_logoutUserHeader()
+    {
+        $logout = $this->model->logOut();
+        header('Location:/shop/user/showMain');
+    }
     function action_getRatingAndShow()
     {
+        $message = $this->action_checkUser();
         @$category = $_GET['group'];
         if (!empty($category)) //если в url есть параметр 'category', то оставляем элементы только с указанной категорией
         {
@@ -182,40 +199,26 @@ class Controller_User extends Controller
     }
     function action_getCabinetAndShow()
     {
-        
-        //$root = $this->checkHash();
-        @$login = $_GET['login'];
-        if (empty($login)) //проверяем наличие логина в строке и куках
-        {
-          $this->view->generate('login_view.php', 'template_view.php'); //отправляем на авторизацию
-        } else {
-          $info = $this->model->getCabinet($login); //вытаскиваем контактную информацию пользователя
-          $users = $this->model->getHashAndID($_COOKIE['id']);
-          $theCategory = $this->model->getTheCategory($users['group_id']);
-          $roots = $this->model->checkRoots(); //проверяем права админа
-          if ($roots == '1') {
-            $unconfirmedUsers = $this->model->getUnconfirmedUsers(); //вытаскиваем неподтвержденных пользователей
-            $unconfirmedInfo = $this->model->getInfo();
-            $category = $this->model->getCategory();
-          }
-          $this->view->generate('cabinet_view.php', 'template_view.php', array('info' => $info, 'users' => $users, 'theCategory' => $theCategory, 'roots' => $roots, 'unconfirmedUsers' => $unconfirmedUsers, 'unconfirmedInfo' => $unconfirmedInfo, 'category' => $category));//передаем View
-        }   
-    }
-    function checkHash()
-    {
-        $userdata = $this->model->getHashAndID(intval($_COOKIE['id']));
-        if (isset($_COOKIE['id']) and isset($_COOKIE['hash'])) {
-            if (($userdata['user_hash'] !== $_COOKIE['hash']) or ($userdata['user_id'] !== $_COOKIE['id'])) {
-                setcookie("id", "", time() - 3600*24*30*12, "/");
-                setcookie("username", "", time() - 3600*24*30*12, "/");
-                setcookie("hash", "", time() - 3600*24*30*12, "/");
-                $message = "Авторизуйтесь пожалуйста.";
-                $this->view->generate('login_view.php', 'template_view.php', $message);
+        $message = $this->action_checkUser();
+        if ($message) {
+            $login = $_GET['login'];
+            if (empty($login)) //проверяем наличие логина в строке и куках
+            {
+              $this->view->generate('login_view.php', 'template_view.php'); //отправляем на авторизацию
             } else {
-                return 1;
-            }
+              $info = $this->model->getCabinet($login); //вытаскиваем контактную информацию пользователя
+              $users = $this->model->getHashAndID($_COOKIE['id']);
+              $theCategory = $this->model->getTheCategory($users['group_id']);
+              $roots = $this->model->checkRoots(); //проверяем права админа
+              if ($roots == '1') {
+                $unconfirmedUsers = $this->model->getUnconfirmedUsers(); //вытаскиваем неподтвержденных пользователей
+                $unconfirmedInfo = $this->model->getInfo();
+                $category = $this->model->getCategory();
+              }
+              $this->view->generate('cabinet_view.php', 'template_view.php', array('info' => $info, 'users' => $users, 'theCategory' => $theCategory, 'roots' => $roots, 'unconfirmedUsers' => $unconfirmedUsers, 'unconfirmedInfo' => $unconfirmedInfo, 'category' => $category));//передаем View
+            }   
         } else {
-            $message = "Пожалуйста, включите куки.";
+            $message = "Авторизуйтесь пожалуйста.";
             $this->view->generate('login_view.php', 'template_view.php', $message);
         }
     }
